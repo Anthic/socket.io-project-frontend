@@ -1,65 +1,83 @@
-import Image from "next/image";
+// 💡 Homepage — আকর্ষণীয় hero section
 
-export default function Home() {
+"use client";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { BookOpen, Users, Zap, Feather } from "lucide-react";
+
+const features = [
+  { icon: Users,    title: "Collaborative",   desc: "Write stories with people worldwide in real-time" },
+  { icon: Zap,      title: "AI Twists",       desc: "Random plot twists injected by our story AI" },
+  { icon: Feather,  title: "Your Story",      desc: "Every line matters. Every word counts." },
+];
+
+export default function HomePage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="max-w-5xl mx-auto px-6 py-20">
+
+      {/* Hero */}
+      <div className="text-center mb-20">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}>
+
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border mb-8 text-sm"
+            style={{ borderColor: "var(--border-gold)", color: "var(--accent-gold)", background: "rgba(201,168,76,0.08)" }}>
+            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+            Live stories happening now
+          </div>
+
+          <h1 className="font-cinzel text-5xl md:text-7xl font-bold mb-6 leading-tight"
+            style={{ color: "var(--text-primary)" }}>
+            Write Stories
+            <br />
+            <span style={{ color: "var(--accent-gold)" }}>Together.</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+
+          <p className="font-lora italic text-xl md:text-2xl mb-10 max-w-2xl mx-auto"
+            style={{ color: "var(--text-secondary)" }}>
+            "Join a room. Add a line. Shape the story."
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+
+          <div className="flex items-center justify-center gap-4">
+            <Link href="/rooms"
+              className="px-8 py-3 rounded-lg font-semibold text-base transition-all hover:scale-105"
+              style={{ background: "var(--accent-gold)", color: "#000" }}>
+              Browse Rooms
+            </Link>
+            <Link href="/register"
+              className="px-8 py-3 rounded-lg font-semibold text-base border transition-all hover:border-amber-400"
+              style={{ borderColor: "var(--border-gold)", color: "var(--text-primary)" }}>
+              Start Writing
+            </Link>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Features */}
+      <div className="grid md:grid-cols-3 gap-6">
+        {features.map((f, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 + i * 0.1 }}
+            className="rounded-xl p-6 border text-center"
+            style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
+            <div className="inline-flex p-3 rounded-lg mb-4"
+              style={{ background: "rgba(201,168,76,0.1)" }}>
+              <f.icon size={20} style={{ color: "var(--accent-gold)" }} />
+            </div>
+            <h3 className="font-cinzel font-semibold mb-2" style={{ color: "var(--text-primary)" }}>
+              {f.title}
+            </h3>
+            <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+              {f.desc}
+            </p>
+          </motion.div>
+        ))}
+      </div>
     </div>
   );
 }
