@@ -32,13 +32,37 @@ export default function RegisterPage() {
       const { firstName, lastName, email, password } = form;
       if (!form.privacyPolicyAccepted) {
         setError("You must accept the privacy policy to register");
+        setLoading(false);
         return;
       }
-      await api.post("/user/create-user", { firstName, lastName, email, password, privacyPolicyAccepted: true });
-      setSuccess("Account created! Please check your email to verify.");
-      setTimeout(() => router.push("/auth/login"), 2500);
+
+      // Debug: Log the endpoint being called
+      const endpoint = "/user/create-user";
+      console.log("🔵 Calling API endpoint:", endpoint);
+      console.log("🔵 Full URL:", `http://localhost:8000/api/v1${endpoint}`);
+
+      // ✅ Correct backend route: POST /user/create-user
+      const response = await api.post(endpoint, {
+        firstName,
+        lastName,
+        email,
+        password,
+        privacyPolicyAccepted: true,
+      });
+
+      console.log("✅ Registration successful:", response.data);
+      setSuccess("Account created! Redirecting to login...");
+      setTimeout(() => {
+        router.push("/auth/login");
+      }, 1500);
     } catch (err: any) {
-      setError(err.response?.data?.message || "Registration failed. Try again.");
+      console.error(
+        "❌ Registration error:",
+        err.response?.data || err.message,
+      );
+      setError(
+        err.response?.data?.message || "Registration failed. Try again.",
+      );
     } finally {
       setLoading(false);
     }
@@ -93,7 +117,9 @@ export default function RegisterPage() {
                     id="reg-firstname"
                     type="text"
                     value={form.firstName}
-                    onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, firstName: e.target.value })
+                    }
                     placeholder="John"
                     required
                     className="auth-input"
@@ -108,7 +134,9 @@ export default function RegisterPage() {
                     id="reg-lastname"
                     type="text"
                     value={form.lastName}
-                    onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, lastName: e.target.value })
+                    }
                     placeholder="Doe"
                     className="auth-input"
                   />
@@ -142,7 +170,9 @@ export default function RegisterPage() {
                   id="reg-password"
                   type={showPass ? "text" : "password"}
                   value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, password: e.target.value })
+                  }
                   placeholder="Min. 8 characters"
                   required
                   minLength={8}
@@ -168,7 +198,9 @@ export default function RegisterPage() {
                   id="reg-confirm"
                   type={showPass ? "text" : "password"}
                   value={form.confirmPassword}
-                  onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, confirmPassword: e.target.value })
+                  }
                   placeholder="••••••••"
                   required
                   className="auth-input auth-input-pass"
@@ -182,15 +214,21 @@ export default function RegisterPage() {
                 id="reg-privacy"
                 type="checkbox"
                 checked={form.privacyPolicyAccepted}
-                onChange={(e) => setForm({ ...form, privacyPolicyAccepted: e.target.checked })}
+                onChange={(e) =>
+                  setForm({ ...form, privacyPolicyAccepted: e.target.checked })
+                }
                 className="auth-checkbox"
                 required
               />
               <span>
                 I agree to the{" "}
-                <a href="#" className="auth-link">Privacy Policy</a>
-                {" "}and{" "}
-                <a href="#" className="auth-link">Terms of Service</a>
+                <a href="#" className="auth-link">
+                  Privacy Policy
+                </a>{" "}
+                and{" "}
+                <a href="#" className="auth-link">
+                  Terms of Service
+                </a>
               </span>
             </label>
 

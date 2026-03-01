@@ -65,7 +65,7 @@ export default function RoomPage() {
           {storyLines.length === 0 ? (
             <div className="flex items-center justify-center h-full">
               <p className="font-lora italic text-lg" style={{ color: "var(--text-muted)" }}>
-                "Once upon a time..."
+                Once upon a time...
                 <br />
                 <span className="text-sm mt-2 block text-center">Be the first to write!</span>
               </p>

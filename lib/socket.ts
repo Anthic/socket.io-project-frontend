@@ -1,4 +1,3 @@
-
 import { io, Socket } from "socket.io-client";
 
 // 'Socket' here is imported from socket.io-client v4 which ships its own types.
@@ -13,6 +12,8 @@ export const getSocket = (token?: string | null): Socket => {
       autoConnect: false,
       auth: token ? { token } : undefined,
     });
+  } else if (token && socket.auth) {
+    socket.auth = { token };
   }
   return socket;
 };

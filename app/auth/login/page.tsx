@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -21,17 +22,26 @@ export default function LoginPage() {
     try {
       const { data } = await api.post("/auth/login", form);
 
+      // ✅ Direct login without OTP verification
       if (data.data?.accessToken) {
-        const profileRes = await api.get("/auth/me", {
-          headers: { Authorization: data.data.accessToken },
+        const token = data.data.accessToken;
+
+        // Fetch user profile
+        const meRes = await api.get("/auth/me", {
+          headers: { Authorization: token },
         });
-        setAuth(profileRes.data.data, data.data.accessToken);
+        const userData = meRes.data?.data;
+
+        // Save user + token to store
+        setAuth(userData, token);
         router.push("/rooms");
       } else {
-        setError(data.message || "Please verify your email first");
+        setError(data.message || "Login failed. Please try again.");
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || "Login failed. Check your credentials.");
+      setError(
+        err.response?.data?.message || "Login failed. Check your credentials.",
+      );
     } finally {
       setLoading(false);
     }
@@ -97,7 +107,9 @@ export default function LoginPage() {
                   id="login-password"
                   type={showPass ? "text" : "password"}
                   value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, password: e.target.value })
+                  }
                   placeholder="••••••••"
                   required
                   className="auth-input auth-input-pass"

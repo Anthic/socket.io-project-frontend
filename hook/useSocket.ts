@@ -12,24 +12,67 @@ import { useAuthStore } from "../store/authStore";
 export const useSocket = (roomId: string) => {
   const { accessToken } = useAuthStore();
   const {
-    setRoom, setStoryLines, addStoryLine, updateStoryLine, removeStoryLine,
-    setParticipants, addParticipant, removeParticipant,
-    addTypingUser, removeTypingUser, setAiEvent,
+    setRoom,
+    setStoryLines,
+    addStoryLine,
+    updateStoryLine,
+    removeStoryLine,
+    setParticipants,
+    addParticipant,
+    removeParticipant,
+    addTypingUser,
+    removeTypingUser,
+    setAiEvent,
   } = useRoomStore();
 
-  const socketRef = useRef(getSocket(accessToken!));
+  const socketRef = useRef<ReturnType<typeof getSocket> | null>(null);
 
   useEffect(() => {
-    if (!accessToken || !roomId) return;
+    if (!accessToken || !roomId) {
+      console.warn("⚠️ Socket not initialized - missing:", {
+        hasToken: !!accessToken,
+        hasRoomId: !!roomId,
+      });
+      return;
+    }
+
+    console.log(
+      "🔌 Initializing socket connection with token:",
+      accessToken.substring(0, 20) + "...",
+    );
+
+    // 🔧 Create or update socket with current token
+    if (!socketRef.current) {
+      socketRef.current = getSocket(accessToken);
+    } else {
+      // Update auth token if socket already exists
+      socketRef.current.auth = { token: accessToken };
+    }
 
     const socket = socketRef.current;
 
-    // Room join 
+    // 🔍 Connection event listeners for debugging
+    socket.on("connect", () => {
+      console.log("✅ Socket connected:", socket.id);
+    });
+
+    socket.on("connect_error", (error) => {
+      console.error("❌ Socket connection error:", error.message);
+    });
+
+    if (!socket.connected) {
+      socket.connect();
+    }
+
+    // Room join
     socket.emit("join-room", { roomId });
 
-
     socket.on("room-joined", ({ room }) => {
-      setRoom({ id: room.id, title: room.title, description: room.description });
+      setRoom({
+        id: room.id,
+        title: room.title,
+        description: room.description,
+      });
       setParticipants(room.participants);
       setStoryLines(room.storyLines);
     });
@@ -70,6 +113,8 @@ export const useSocket = (roomId: string) => {
     // Cleanup function
     return () => {
       socket.emit("leave-room", { roomId });
+      socket.off("connect");
+      socket.off("connect_error");
       socket.off("room-joined");
       socket.off("new-story-line");
       socket.off("story-line-added");
@@ -87,16 +132,26 @@ export const useSocket = (roomId: string) => {
   // ━━━ CLIENT → SERVER EMITTERS ━━━
 
   const sendStoryLine = (content: string) => {
+    if (!socketRef.current) return;
     socketRef.current.emit("add-story-line", { roomId, content });
   };
 
   const startTyping = () => {
+    if (!socketRef.current) return;
     socketRef.current.emit("start-typing", { roomId });
   };
 
   const stopTyping = () => {
+    if (!socketRef.current) return;
     socketRef.current.emit("stop-typing", { roomId });
   };
-
-  return { sendStoryLine, startTyping, stopTyping };
+  const updateLine = (lineId: string, content: string) => {
+    if (!socketRef.current) return;
+    socketRef.current.emit("update-story-line", { roomId, lineId, content });
+  };
+  const deleteLine = (lineId: string) => {
+    if (!socketRef.current) return;
+    socketRef.current.emit("delete-story-line", { roomId, lineId });
+  };
+  return { sendStoryLine, startTyping, stopTyping, updateLine, deleteLine };
 };
